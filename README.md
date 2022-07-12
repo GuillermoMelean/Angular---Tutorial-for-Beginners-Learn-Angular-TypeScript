@@ -8,6 +8,8 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 **Angular is not mandatory, but makes your life a lot easier.**
 
+#
+
 ## Architecture of Angular applications
 
 ### <u>Front-end</u> - **Client**
@@ -31,7 +33,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 Endpoints that are accessible via HTTP Protocol.
 
 
-
+#
 
 ## Webpack - Compiled bundles 
 
@@ -62,6 +64,7 @@ In TypeScript we have:
 **Browser doesn't understand TypeScript** so we need to transpile the code. This a part of building the application. By default tsc transpile the TypeScript into JavaScript ES5.
 > **_NOTE:_** You don't need to actual call a compiler because all the building can do it by itslef 'under the hood'. When you run your application using `ng serve`, angular CLI call tsc under the hood to transpile all out TypeScript code.
 
+#
 
 ## TypeScript
 ### **Types** 
@@ -229,6 +232,8 @@ constructor(private _x?: number, private _y?: number){}
 - _protected_ - accessible by the classes of the same package and the subclasses residing in any package;
 - _default_ (no modifier specified): accessible by the classes of the same package.
 
+#
+
 ## Angular Fundamentals
 
 ### **Components**
@@ -240,26 +245,101 @@ The steps to use a component:
 - **Register** it in a module
 - Add an element in an **HTML markup**
 
+You can also run a command in the base folder `ng g c name_of_component`. This command will generate all the files required to create a component and also register it in a module.
 
+> **_NOTE:_** A component should NOT include any logic other than the presentation logic. Details of how data is retrieve should be delegated to somewhere else on the application. 
 
+### **Templates**
+To binding the data in the view, we mostly use some a method called **Interpolation**.
 
+**Interpolation** refers to embedding expressions into marked up text. By default, interpolation uses the double curly braces {{ and }} as delimiters. Something like this:
 
+```
+import { Component } from '@angular/core';
 
+@Component({
+    selector: 'courses',
+    template: '<h2>{{ getTitle() }}</h2>' // <--- here we are calling a method from the class
+})
+export class CoursesComponent {
+    title = "List of courses";
 
+    getTitle(){
+        return this.title;
+    }
+}
+```
+In this curly braces you can also write directly the var `{{ title }}`, or you can call an existing method `{{ getTitle() }}`, or even an JavaScript expression like `{{ "Title: " + getTitle() }}`. With this you can render something in our template dinamically, and then the expression will be evaluating in run-time and the value of the title field with be placeed in our DOM. If the value of this field changes at sometime in the future, Angular will automatically update the DOM. This is the concept of **data binding**, so we're binding a view to a field in this component. Whenever the value of that field changes, the view is automatically notified and updated.
 
+### **Directives**
+We use directives to manipulate the DOM:
+- Add a DOM element
+- Remove an existing DOM element
+- Change a class or style of a DOM element
 
+Whenever we use a directive that modifies the structure of the DOM you should prefix that directive with an * like this:
 
+```
+@Component({
+    selector: 'courses',
+    template: `
+        <h2>{{ getTitle() }}</h2>
+        <ul>
+            <li *ngFor="let course of courses"></li> // <--- prefix the directive with an *
+        </ul>
+    `
+})
+```
 
-### Templated
+### **Services**
+Whenever you need to get **data from a server** or something outside of your application you need to use another building block of Angular called **Service**.
+The convention used to name a Service is: `name_of_component.service.ts`.
+Inside of this class we will add the next code:
+```
+export class CoursesService {
+    getCourses(){
+        return ["course1", "course2", "course3"];
+    } 
+}
+```
+and then replace the `courses.component.ts`:
+```
+import { CoursesService } from './course/courses.service'; // <--- import the service
+export class CoursesComponent {
+    title = "List of courses";
+    courses;
 
+    constructor(){
+        let service = new CoursesService(); // <--- create the instance
+        this.courses = service.getCourses(); // <--- call the method
+    }
+}
+```
 
-### Directives
+This implementation works, but it gives to the code a high coupling and that's not good.
+So for us to improve this implementation we can use **Dependency Injection**, because if we in sometime change the CoursesService constructor to now recieve a parameter, we will need to change in all the places that we are using this service. 
+> **_NOTE:_** High coupling means that a change in one place can have unknown effects in unknown other places. It means that your code is harder to understand because complex, intertwined relationships are difficult to understand.
+Angular has Dependency Injection built to it. In order that to work we need to change a litle bit our code. So, in `courses.component.ts` we need to change the constructor to recieve the service by param, like this:
 
+```
+constructor(service: CoursesService){ // <--- recieve the service by parameter
+    this.courses = service.getCourses();
+}
+```
+After that we need to register this dependencies somewhere in our module, so now we need to go to app.module.ts and add to all the dependencies that components in this module are depending upon.
+In this case the `courses.component.ts` are depending of the `courses.service.ts`, so we need to register it in the providers like this:
 
-### Services
+``` 
+...
+providers: [
+    CoursesService
+],
+...
+``` 
+> **_NOTE:_** If you forget this step, Angular will thrown an error like "No provider for CoursesService".
+When you register a dependency as a provider in a module, Angular will create a single instance of that class in that entire module. So, imagine in this modules contains 100 components, and 50 of them need the CoursesService, in the memory we're gonna have only a single instance of CoursesServices and Angular will pass the same instance to all of that components. This is what we call a **Singleton pattern**.
 
-
-
+You can also run a command in the base folder `ng g s name_of_service`. This command will generate all the files required to create a service and but, contrary to creating an component, this command does not register it in a module.
 
 
 <!-- 
