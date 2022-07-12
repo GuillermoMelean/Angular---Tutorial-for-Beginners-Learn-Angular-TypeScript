@@ -342,7 +342,7 @@ When you register a dependency as a provider in a module, Angular will create a 
 You can also run a command in the base folder `ng g s name_of_service`. This command will generate all the files required to create a service and but, contrary to creating an component, this command does not register it in a module.
 
 
-<!-- 
+ 
 # Development Server Information
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
@@ -367,4 +367,4 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
 
-#  -->
+#
